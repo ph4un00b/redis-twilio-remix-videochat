@@ -1,0 +1,10 @@
+//  twilio api:core:keys:create -o=json
+[
+    {
+      "dateCreated": "2022-04-30T20:58:54.000Z",
+      "dateUpdated": "2022-04-30T20:58:54.000Z",
+      "friendlyName": null,
+      "secret": "qwertghywertyuioR",
+      "sid": "23456789asdfghjk"
+    }
+  ]
