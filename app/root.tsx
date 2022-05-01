@@ -14,6 +14,10 @@ export const meta: MetaFunction = () => ({
   viewport: 'width=device-width,initial-scale=1'
 })
 
+export function links () {
+  return [{ rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/daisyui@2.14.3/dist/full.css' }]
+}
+
 export default function App () {
   return (
     <html lang='en'>
@@ -25,6 +29,7 @@ export default function App () {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
+        <script defer src='https://cdn.tailwindcss.com' />
         <LiveReload />
       </body>
     </html>
