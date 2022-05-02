@@ -41,9 +41,7 @@ function VideoChat () {
 
         <div className='hero min-h-screen bg-base-200'>
           <div className='hero-content flex-col lg:flex-row-reverse'>
-            <p>Username: {username}</p>
-            <p>Room name: {roomname}</p>
-            <p>Token: {token}</p>
+            <Room roomname={roomname} token={token} handleLogout={handleLogout} />
           </div>
         </div>
 
@@ -66,9 +64,9 @@ function VideoChat () {
         <div className='hero-content flex-col lg:flex-row-reverse'>
           <FormLobby
             username={username}
-            roomname={roomname} 
-            handleSubmit={handleSubmit} 
-            handleRoomNameChange={handleRoomNameChange} 
+            roomname={roomname}
+            handleSubmit={handleSubmit}
+            handleRoomNameChange={handleRoomNameChange}
             handleUsernameChange={handleUsernameChange}
           />
         </div>
@@ -111,6 +109,32 @@ function FormLobby ({ handleSubmit, handleRoomNameChange, handleUsernameChange, 
         </div>
       </div>
     </Form>
+  )
+}
+interface ParticipantOpts { participant: any }
+
+function SinglePaticipant ({ participant }: ParticipantOpts) {
+  return <p key={participant.sid}>{participant.identity}</p>
+}
+
+interface RoomOpts {roomname: string, token: string, handleLogout: FormEventHandler}
+
+function Room ({ roomname, token, handleLogout }: RoomOpts) {
+  const [room, setRoom] = useState(null)
+  const [participants, setParticipants] = useState([])
+
+  const remoteParticipants = <>{participants.map(SinglePaticipant)}</>
+
+  return (
+    <div className='room'>
+      <h2>Room: {roomname}</h2>
+      <button onClick={handleLogout}>Log out</button>
+      <div className='local-participant'>
+        {room ? <SinglePaticipant participant={room.localParticipant} /> : ''}
+      </div>
+      <h3>Remote Participants</h3>
+      <div className='remote-participants'>{remoteParticipants}</div>
+    </div>
   )
 }
 
