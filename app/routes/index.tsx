@@ -1,5 +1,6 @@
 import { Form } from '@remix-run/react'
 import { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useState } from 'react'
+import { jwt } from 'utils/access_token.server'
 
 function VideoChat () {
   const [username, setUsername] = useState('')
@@ -17,7 +18,7 @@ function VideoChat () {
 
   async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const data = await fetch('/video/token', {
+    const data = await fetch('/access/token', {
       method: 'POST',
       body: JSON.stringify({
         identity: username,
@@ -28,7 +29,7 @@ function VideoChat () {
       }
     }).then(async res => await res.json()).catch(console.error)
 
-    setToken(data.token)
+    setToken(data)
   }
 
   function handleLogout (event: any) {
@@ -130,7 +131,7 @@ function Room ({ roomname, token, handleLogout }: RoomOpts) {
       <h2>Room: {roomname}</h2>
       <button onClick={handleLogout}>Log out</button>
       <div className='local-participant'>
-        {room ? <SinglePaticipant participant={room.localParticipant} /> : ''}
+        local?: {room ? <SinglePaticipant participant={room.localParticipant} /> : ''}
       </div>
       <h3>Remote Participants</h3>
       <div className='remote-participants'>{remoteParticipants}</div>
