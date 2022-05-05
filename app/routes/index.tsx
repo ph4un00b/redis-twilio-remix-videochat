@@ -1,11 +1,11 @@
 import { Form } from '@remix-run/react'
-import { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useState } from 'react'
-import { jwt } from 'utils/access_token.server'
+import { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useEffect as useSync, useRef, useState } from 'react'
+import * as Video from 'twilio-video'
 
 function VideoChat () {
   const [username, setUsername] = useState('')
   const [roomname, setRoomName] = useState('')
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState<string | undefined>(undefined)
 
   function handleUsernameChange (event: ChangeEvent<HTMLInputElement>) {
     console.log('handle-user-name')
@@ -33,7 +33,7 @@ function VideoChat () {
   }
 
   function handleLogout (event: any) {
-    setToken(null)
+    setToken(undefined)
   }
 
   if (token) {
@@ -112,29 +112,139 @@ function FormLobby ({ handleSubmit, handleRoomNameChange, handleUsernameChange, 
     </Form>
   )
 }
-interface ParticipantOpts { participant: any }
+// interface ParticipantOpts { participant: Video.Participant }
 
-function SinglePaticipant ({ participant }: ParticipantOpts) {
+function SinglePaticipant (participant: any) {
+  console.log('single-participant', participant)
   return <p key={participant.sid}>{participant.identity}</p>
 }
 
 interface RoomOpts {roomname: string, token: string, handleLogout: FormEventHandler}
 
 function Room ({ roomname, token, handleLogout }: RoomOpts) {
-  const [room, setRoom] = useState(null)
-  const [participants, setParticipants] = useState([])
+  const [room, setRoom] = useState<Video.Room | null>(null)
+  const [participants, setParticipants] = useState<Video.Participant[]>([])
 
-  const remoteParticipants = <>{participants.map(SinglePaticipant)}</>
+  const remoteParticipants = <>{participants.map(participant => <ParticipantStreams key={participant.sid} participant={participant} />)}</>
+
+  useSync(function () {
+    function participantConnected (participant: Video.Participant) {
+      setParticipants(function (prevParticipants) {
+        return [...prevParticipants, participant]
+      })
+    }
+    function participantDisconnected (participant: Video.Participant) {
+      setParticipants(function (prevParticipants) {
+        return prevParticipants.filter(function (p) {
+          return p !== participant
+        })
+      })
+    }
+
+    Video.connect(token, {
+      name: roomname
+    }).then(function (room) {
+      setRoom(room)
+      room.on('participantConnected', participantConnected)
+      room.on('participantDisconnected', participantDisconnected)
+      room.participants.forEach(participantConnected)
+    })
+
+    return function () {
+      setRoom(function (currentRoom) {
+        if ((currentRoom != null) && currentRoom.localParticipant.state === 'connected') {
+          currentRoom.localParticipant.tracks.forEach(function (trackPublication) {
+            trackPublication.track.removeAllListeners()
+          })
+
+          currentRoom.disconnect()
+          return null
+        } else {
+          return currentRoom
+        }
+      })
+    }
+  }, [roomname, token])
 
   return (
     <div className='room'>
       <h2>Room: {roomname}</h2>
       <button onClick={handleLogout}>Log out</button>
       <div className='local-participant'>
-        local?: {room ? <SinglePaticipant participant={room.localParticipant} /> : ''}
+        local?: {(room != null) ? <ParticipantStreams key={room.localParticipant.sid} participant={room.localParticipant} /> : ''}
       </div>
       <h3>Remote Participants</h3>
       <div className='remote-participants'>{remoteParticipants}</div>
+    </div>
+  )
+}
+
+function ParticipantStreams ({ participant }: {participant: Video.Participant}) {
+  const [videoTracks, setVideoTracks] = useState<any[]>([])
+  const [audioTracks, setAudioTracks] = useState<any[]>([])
+
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  function trackpubsToTracks (trackMap: Map<string, Video.AudioTrackPublication> | Map<string, Video.VideoTrackPublication>) {
+    return Array.from<Video.AudioTrackPublication | Video.VideoTrackPublication>(trackMap.values())
+      .map(publication => publication.track)
+      .filter(track => track !== null)
+  }
+
+  useSync(() => {
+    function trackSubscribed (track: Video.LocalTrack) {
+      if (track.kind === 'video') {
+        setVideoTracks(videoTracks => [...videoTracks, track])
+      } else {
+        setAudioTracks(audioTracks => [...audioTracks, track])
+      }
+    }
+
+    function trackUnsubscribed (track: Video.LocalTrack) {
+      if (track.kind === 'video') {
+        setVideoTracks(videoTracks => videoTracks.filter(v => v !== track))
+      } else {
+        setAudioTracks(audioTracks => audioTracks.filter(a => a !== track))
+      }
+    }
+
+    setVideoTracks(trackpubsToTracks(participant.videoTracks))
+    setAudioTracks(trackpubsToTracks(participant.audioTracks))
+
+    participant.on('trackSubscribed', trackSubscribed)
+    participant.on('trackUnsubscribed', trackUnsubscribed)
+
+    return () => {
+      setVideoTracks([])
+      setAudioTracks([])
+      participant.removeAllListeners()
+    }
+  }, [participant.identity])
+
+  useSync(() => {
+    const [videoTrack]: Video.LocalVideoTrack[] = videoTracks
+    if (videoTrack) {
+      videoTrack.attach(videoRef.current!)
+      return () => { videoTrack.detach() }
+    }
+    // to event handler?
+  }, [videoTracks])
+
+  useSync(() => {
+    const [audiotrack]: Video.LocalAudioTrack[] = audioTracks
+    if (audiotrack) {
+      audiotrack.attach(audioRef.current!)
+      return () => { audiotrack.detach() }
+    }
+    // to event handler?
+  }, [audioTracks])
+
+  return (
+    <div className='participant'>
+      <h3>{participant.identity}</h3>
+      <video ref={videoRef} autoPlay />
+      <audio ref={audioRef} autoPlay muted />
     </div>
   )
 }
