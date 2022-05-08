@@ -16,7 +16,6 @@ export const action: ActionFunction = async ({
   const { identity, room } = await request.json()
   switch (request.method) {
     case 'POST': {
-      /* handle "POST" */
       return new Response(JSON.stringify(makeToken(identity, room)), {
         status: 200,
         headers: {
@@ -25,13 +24,10 @@ export const action: ActionFunction = async ({
       })
     }
     case 'PUT': {
-      /* handle "PUT" */
     }
     case 'PATCH': {
-      /* handle "PATCH" */
     }
     case 'DELETE': {
-      /* handle "DELETE" */
     }
   }
 }
