@@ -9,7 +9,13 @@
   "sideEffects": false,
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev"
+    "dev": "remix dev",
+    "e2e": "playwright test",
+    "e2e:head": "playwright test --headed --workers 1",
+    "e2e:ch": "playwright test --project=chromium --reporter=list --max-failures 1",
+    "e2e:ff": "playwright test --project=firefox --reporter=list --max-failures 1",
+    "e2e:wk": "playwright test --project=webkit --reporter=list --max-failures 1",
+    "e2e:debug": "playwright test --project=chromium --debug"
   },
   "dependencies": {
     "@remix-run/node": "^1.4.3",

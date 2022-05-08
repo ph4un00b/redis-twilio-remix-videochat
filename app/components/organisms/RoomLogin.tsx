@@ -50,6 +50,7 @@ export function RoomLogin () {
 
   return (
     <FormCard onSubmitHandler={handleSubmit} gridRows='grid-rows-3'>
+
       <div className='col-span-6 col-start-2 w-full form-control'>
         <label className='label'>
           <span className='label-text'>user</span>
@@ -67,6 +68,7 @@ export function RoomLogin () {
       <div className='flex flex-row col-span-8 justify-center items-center pb-3'>
         <button type='submit' className='btn btn-primary'>JOIN</button>
       </div>
+
     </FormCard>
   )
 }
@@ -208,7 +210,7 @@ function ParticipantStreams ({ participant }: {participant: Video.Participant}) 
 
   return (
     <div className='participant'>
-      <h3>{participant.identity}</h3>
+      <h3>nickname: {participant.identity}</h3>
       <video ref={videoRef} autoPlay />
       <audio ref={audioRef} autoPlay muted />
     </div>

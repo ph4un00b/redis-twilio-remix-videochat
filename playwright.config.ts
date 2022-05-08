@@ -45,23 +45,48 @@ const config: PlaywrightTestConfig = {
     {
       name: 'chromium',
       use: {
-        ...devices['Desktop Chrome']
+        ...devices['Desktop Chrome'],
+        // channel: 'chrome',
+        launchOptions: {
+          args: [
+            '--use-fake-device-for-media-stream',
+            '--use-fake-ui-for-media-stream'
+          ]
+        }
       }
     },
 
     {
       name: 'firefox',
       use: {
-        ...devices['Desktop Firefox']
-      }
-    },
-
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari']
+        browserName: 'firefox',
+        launchOptions: {
+          args: [
+            '--quiet',
+            '--use-test-media-devices'
+          ],
+          firefoxUserPrefs: {
+            'media.navigator.streams.fake': true,
+            'media.navigator.permission.disabled': true
+          }
+        }
       }
     }
+
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     browserName: 'webkit',
+    //     launchOptions: {
+    //       args: [
+    //         '--enable-mock-capture-devices',
+    //         '--enable-media-stream'
+    //         // "--disable-ice-candidate-restrictions",
+
+    //       ]
+    //     }
+    //   }
+    // }
 
     /* Test against mobile viewports. */
     // {
