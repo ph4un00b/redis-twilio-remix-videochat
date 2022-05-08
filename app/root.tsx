@@ -29,12 +29,12 @@ export default function App () {
       <head>
         <Meta />
         <Links />
+        <script src='https://cdn.tailwindcss.com' />
       </head>
       <body>
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <script defer src='https://cdn.tailwindcss.com' />
         <LiveReload />
       </body>
     </html>
