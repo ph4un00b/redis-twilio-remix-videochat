@@ -8,14 +8,19 @@ import {
   ScrollRestoration
 } from '@remix-run/react'
 
+import __dev_styles__ from '../styles/development.css'
+
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
-  title: 'New Remix App',
+  title: 'meeting app',
   viewport: 'width=device-width,initial-scale=1'
 })
 
 export function links () {
-  return [{ rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/daisyui@2.14.3/dist/full.css' }]
+  return [
+    { rel: 'stylesheet', href: __dev_styles__ }, /* todo: rm on prod */
+    { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/daisyui@2.14.3/dist/full.css' }
+  ]
 }
 
 export default function App () {
