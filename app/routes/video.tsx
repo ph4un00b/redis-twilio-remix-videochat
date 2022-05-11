@@ -1,6 +1,7 @@
 import ContentBlock from '~/components/molecules/ContentBlock'
 import { Header, Footer, RoomLogin, Room } from '~/components/organisms/RoomLogin'
 import * as yup from 'yup'
+import { redirect } from '@remix-run/node'
 
 export async function action ({ request }: { request: Request }) {
   const form = await request.formData()
@@ -33,6 +34,8 @@ export async function action ({ request }: { request: Request }) {
 
     return { flashErrors: true }
   }
+
+  return redirect('/chat')
 }
 
 export default function Index () {
