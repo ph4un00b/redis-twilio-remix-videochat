@@ -9,7 +9,7 @@ describe('Index page', function () {
   test('Usuario puede entrar a un cuarto y ver su camara.', async function ({ page }) {
     const find = page.locator.bind(page)
 
-    await goto(page, '/home')
+    await goto(page, '/video')
 
     await find('input[name="user"]').fill('john')
     await find('input[name="user"]').press('Tab')

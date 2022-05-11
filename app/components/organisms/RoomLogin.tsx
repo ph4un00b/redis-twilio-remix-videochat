@@ -220,7 +220,7 @@ function ParticipantStreams ({ participant }: {participant: Video.Participant}) 
       videoTrack.attach(videoRef.current!)
       return () => { videoTrack.detach() }
     }
-    // to event handler?
+    // usar en event handler?
   }, [videoTracks])
 
   useSync(() => {
@@ -229,7 +229,7 @@ function ParticipantStreams ({ participant }: {participant: Video.Participant}) 
       audiotrack.attach(audioRef.current!)
       return () => { audiotrack.detach() }
     }
-    // to event handler?
+    // usar en event handler?
   }, [audioTracks])
 
   return (
