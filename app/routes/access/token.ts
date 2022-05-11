@@ -23,11 +23,8 @@ export const action: ActionFunction = async ({
         }
       })
     }
-    case 'PUT': {
-    }
-    case 'PATCH': {
-    }
-    case 'DELETE': {
-    }
+    case 'PUT': { }
+    case 'PATCH': { }
+    case 'DELETE': { }
   }
 }

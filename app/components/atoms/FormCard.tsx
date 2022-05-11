@@ -1,7 +1,11 @@
 import { Form } from '@remix-run/react'
-import { ReactNode } from 'react'
+import { FormEventHandler, ReactNode } from 'react'
 
-interface FormOpts { children: ReactNode, gridRows?: string, onSubmitHandler?: React.FormEventHandler<HTMLFormElement> }
+interface FormOpts {
+  children: ReactNode
+  gridRows?: string
+  onSubmitHandler?: FormEventHandler<HTMLFormElement>
+}
 
 export default function FormCard ({ children, onSubmitHandler, gridRows = 'grid-rows-1' }: FormOpts) {
   return (

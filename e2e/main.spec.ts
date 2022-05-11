@@ -9,7 +9,7 @@ describe('Index page', function () {
   test('Usuario puede entrar a un cuarto y ver su camara.', async function ({ page }) {
     const find = page.locator.bind(page)
 
-    await goto(page, '/')
+    await goto(page, '/home')
 
     await find('input[name="user"]').fill('john')
     await find('input[name="user"]').press('Tab')
@@ -23,8 +23,9 @@ describe('Index page', function () {
     await expectVisible(find, 'nickname: john')
 
     await click(page, 'text=Log out')
-    await expectInputValue(find, { name: 'user', value: 'john' })
-    await expectInputValue(find, { name: 'room', value: 'midudev' })
+    const userInput = { name: 'user', value: 'john' }
+    await expectInputValue(find, userInput)
+    const roomInput = { name: 'room', value: 'midudev' }
+    await expectInputValue(find, roomInput)
   })
-
 })

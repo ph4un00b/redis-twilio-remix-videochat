@@ -10,63 +10,58 @@ export function Header () {
   )
 }
 
+type ChangeOpts = ChangeEvent<HTMLInputElement>
+
 export function RoomLogin () {
   const [username, setUsername] = useState('')
   const [roomname, setRoomName] = useState('')
-  const [token, setToken] = useState<string | undefined>(undefined)
 
-  function handleUsernameChange (event: ChangeEvent<HTMLInputElement>) {
+  function handleUsername (event: ChangeOpts) {
     setUsername(event.target.value)
   }
 
-  function handleRoomNameChange (event: ChangeEvent<HTMLInputElement>) {
+  function handleRoomName (event: ChangeOpts) {
     setRoomName(event.target.value)
   }
 
-  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const data = await fetch('/access/token', {
-      method: 'POST',
-      body: JSON.stringify({
-        identity: username,
-        room: roomname
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(async res => await res.json()).catch(console.error)
-
-    setToken(data)
-    console.log('set token')
-  }
-
-  function handleLogout (event: any) {
-    setToken(undefined)
-  }
-
-  if (token) {
-    return <Room roomname={roomname} token={token} handleLogout={handleLogout} />
-  }
-
   return (
-    <FormCard onSubmitHandler={handleSubmit} gridRows='grid-rows-3'>
+    <FormCard gridRows='grid-rows-3'>
 
       <div className='col-span-6 col-start-2 w-full form-control'>
         <label className='label'>
           <span className='label-text'>user</span>
         </label>
-        <input onChange={handleUsernameChange} value={username} type='text' name='user' placeholder='Type here' className='input input-bordered input-success w-full max-w-xs' />
+        <input
+          onChange={handleUsername}
+          value={username}
+          type='text'
+          name='user'
+          placeholder='Type here'
+          className='input input-bordered input-success w-full max-w-xs'
+        />
       </div>
 
       <div className='col-span-6 col-start-2 w-full form-control'>
         <label className='label'>
           <span className='label-text'>room</span>
         </label>
-        <input onChange={handleRoomNameChange} value={roomname} type='text' name='room' placeholder='Type here' className='input input-bordered input-success w-full max-w-xs' />
+        <input
+          onChange={handleRoomName}
+          value={roomname}
+          type='text'
+          name='room'
+          placeholder='Type here'
+          className='input input-bordered input-success w-full max-w-xs'
+        />
       </div>
 
       <div className='flex flex-row col-span-8 justify-center items-center pb-3'>
-        <button type='submit' className='btn btn-primary'>JOIN</button>
+        <button
+          type='submit'
+          className='btn btn-primary'
+        >
+          JOIN
+        </button>
       </div>
 
     </FormCard>
@@ -87,7 +82,7 @@ export function Footer () {
 
 interface RoomOpts {roomname: string, token: string, handleLogout: FormEventHandler}
 
-function Room ({ roomname, token, handleLogout }: RoomOpts) {
+export function Room ({ roomname, token, handleLogout }: RoomOpts) {
   const [room, setRoom] = useState<Video.Room | null>(null)
   const [participants, setParticipants] = useState<Video.Participant[]>([])
 
@@ -133,6 +128,7 @@ function Room ({ roomname, token, handleLogout }: RoomOpts) {
     }
   }, [roomname, token])
 
+  console.log('token', token)
   return (
     <div className='room'>
       <h2>Room: {roomname}</h2>
