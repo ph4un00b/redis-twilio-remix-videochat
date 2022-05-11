@@ -14,18 +14,46 @@ type ChangeOpts = ChangeEvent<HTMLInputElement>
 
 export function RoomLogin () {
   const [username, setUsername] = useState('')
-  const [roomname, setRoomName] = useState('')
+  const [roomname, setRoomname] = useState('')
+  const [token, setToken] = useState(undefined)
 
   function handleUsername (event: ChangeOpts) {
     setUsername(event.target.value)
   }
 
   function handleRoomName (event: ChangeOpts) {
-    setRoomName(event.target.value)
+    setRoomname(event.target.value)
+  }
+
+  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const data = await fetch('/access/token', {
+      method: 'POST',
+      body: JSON.stringify({
+        identity: username,
+        room: roomname
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(async res => await res.json()).catch(console.error)
+
+    setToken(data)
+    console.log('set token')
+  }
+
+  if (token) {
+    return (
+      <Room
+        roomname={roomname}
+        token={token}
+        handleLogout={() => { setToken(undefined) }}
+      />
+    )
   }
 
   return (
-    <FormCard gridRows='grid-rows-3'>
+    <FormCard onSubmitHandler={handleSubmit} gridRows='grid-rows-3'>
 
       <div className='col-span-6 col-start-2 w-full form-control'>
         <label className='label'>
