@@ -27,7 +27,7 @@ describe('No js', function () {
 
     await find('text=JOIN').press('Enter')
 
-    await expectPath(page, 'chat')
+    await expectPath(page, 'chat/midu')
   })
 
   test('Usuario no especifica el room.', async function ({ page }) {

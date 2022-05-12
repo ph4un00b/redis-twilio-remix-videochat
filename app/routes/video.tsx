@@ -8,7 +8,7 @@ export async function action ({ request }: { request: Request }) {
   const entries = await keyValuesFrom(request)
   const [, errors] = await validateRoom(entries)
   if (errors) return errors
-  return redirect('/chat')
+  return redirect('/chat/midu')
 }
 
 export default function Index () {
