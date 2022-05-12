@@ -43,7 +43,7 @@ describe('No js', function () {
     await expectPath(page, 'video')
     const error = '{ "room": "room must be at least 4 characters" }'
     await expectVisible(find, error)
-    const userInput = {name: 'user', value: 'john'}
+    const userInput = { name: 'user', value: 'john' }
     await expectInputValue(find, userInput)
   })
 })

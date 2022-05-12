@@ -2,7 +2,7 @@ import { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useEffect
 import * as Video from 'twilio-video'
 import FormCard from '../atoms/FormCard'
 
-export function Header ({errors}: {errors: any}) {
+export function Header ({ errors }: {errors: any}) {
   return (
     <header className='text-center pt-16'>
       <pre>{JSON.stringify(errors, undefined, 2)}</pre>
@@ -12,7 +12,7 @@ export function Header ({errors}: {errors: any}) {
 
 type ChangeOpts = ChangeEvent<HTMLInputElement>
 
-export function RoomLogin ({defaults}: {defaults:any}) {
+export function RoomLogin ({ defaults }: {defaults: any}) {
   const [username, setUsername] = useState(defaults?.user)
   const [roomname, setRoomname] = useState('')
   const [token, setToken] = useState(undefined)
