@@ -1,4 +1,13 @@
-# Welcome to Remix!
+## Todo
+
+[ ] actions/loaders unit tests
+
+## Testing
+
+```sh
+npm run e2e
+```
+
 
 - [Remix Docs](https://remix.run/docs)
 

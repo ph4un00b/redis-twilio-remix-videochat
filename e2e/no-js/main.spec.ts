@@ -29,4 +29,21 @@ describe('No js', function () {
 
     await expectPath(page, 'chat')
   })
+
+  test('Usuario no especifica el room.', async function ({ page }) {
+    const find = page.locator.bind(page)
+
+    await goto(page, '/video')
+
+    await find('input[name="user"]').fill('john')
+    await find('input[name="user"]').press('Tab')
+
+    await find('text=JOIN').press('Enter')
+
+    await expectPath(page, 'video')
+    const error = '{ "room": "room must be at least 4 characters" }'
+    await expectVisible(find, error)
+    const userInput = {name: 'user', value: 'john'}
+    await expectInputValue(find, userInput)
+  })
 })

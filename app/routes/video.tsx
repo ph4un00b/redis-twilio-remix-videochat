@@ -1,7 +1,8 @@
 import ContentBlock from '~/components/molecules/ContentBlock'
-import { Header, Footer, RoomLogin, Room } from '~/components/organisms/RoomLogin'
+import { Header, Footer, RoomLogin } from '~/components/organisms/RoomLogin'
 import * as yup from 'yup'
 import { redirect } from '@remix-run/node'
+import { useActionData } from '@remix-run/react'
 
 export async function action ({ request }: { request: Request }) {
   const form = await request.formData()
@@ -14,22 +15,21 @@ export async function action ({ request }: { request: Request }) {
       .required('room is a required field')
   })
 
-  let data
   try {
-    data = await schema.validate(entries, { abortEarly: false })
+   await schema.validate(entries, { abortEarly: false })
   } catch (errors) {
     if (errors instanceof yup.ValidationError) {
-      const { inner: innerErrors } = errors
-      const flashErrors = {} as any
+      const { inner: innerErrors, value: values } = errors
+      const messages = {} as any
 
       for (const error of innerErrors) {
-        if (error.path && flashErrors[error.path] === undefined) {
-          flashErrors[error.path] = error.message
+        if (error.path && messages[error.path] === undefined) {
+          messages[error.path] = error.message
         }
       }
 
-      console.log(flashErrors)
-      return { flashErrors }
+      console.log(messages)
+      return { messages, values }
     }
 
     return { flashErrors: true }
@@ -39,13 +39,13 @@ export async function action ({ request }: { request: Request }) {
 }
 
 export default function Index () {
-  // todo: buscar info si remix usa flash errors
-  // a la rails
+  // todo: look for remix flash errors ala ruby on rails
+  const data = useActionData()
 
   return (
     <ContentBlock>
-      <Header />
-      <RoomLogin />
+      <Header errors={data?.messages} />
+      <RoomLogin defaults={data?.values}/>
       <Footer />
     </ContentBlock>
   )

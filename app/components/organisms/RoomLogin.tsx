@@ -2,18 +2,18 @@ import { ChangeEvent, ChangeEventHandler, FormEvent, FormEventHandler, useEffect
 import * as Video from 'twilio-video'
 import FormCard from '../atoms/FormCard'
 
-export function Header () {
+export function Header ({errors}: {errors: any}) {
   return (
     <header className='text-center pt-16'>
-      <h1 className='text-2xl capitalize'>room</h1>
+      <pre>{JSON.stringify(errors, undefined, 2)}</pre>
     </header>
   )
 }
 
 type ChangeOpts = ChangeEvent<HTMLInputElement>
 
-export function RoomLogin () {
-  const [username, setUsername] = useState('')
+export function RoomLogin ({defaults}: {defaults:any}) {
+  const [username, setUsername] = useState(defaults?.user)
   const [roomname, setRoomname] = useState('')
   const [token, setToken] = useState(undefined)
 
