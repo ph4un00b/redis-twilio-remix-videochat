@@ -1,44 +1,39 @@
-// app/services/auth.server.ts
+import * as yup from 'yup'
 import { Authenticator } from 'remix-auth'
-import { FormStrategy } from 'remix-auth-form'
-import { GitHubExtraParams, GitHubProfile } from 'remix-auth-github'
+import { GitHubExtraParams, GitHubProfile, GitHubStrategy } from 'remix-auth-github'
 import { storage } from './sessions.server'
 
-// Create an instance of the authenticator, pass a generic with what
-// strategies will return and will store in the session
-export const authenticator = new Authenticator(storage)
+const schema = yup.object().shape({
+  GITHUB_CLIENT_ID: yup.string().required(),
+  GITHUB_CLIENT_SECRET: yup.string().required()
+})
 
-// export const auth = new Authenticator<{
-//   profile: GitHubProfile
-//   accessToken: string
-//   extraParams: GitHubExtraParams
-// }>(storage)
+const env = schema.validateSync({
+  GITHUB_CLIENT_ID: process
+    .env.GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET: process
+    .env.GITHUB_CLIENT_SECRET
+})
 
-authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    // Here you can use `form` to access and input values from the form.
-    // and also use `context` to access more things from the server
-    const username = form.get('username') // or email... etc
-    const password = form.get('password')
-
-    // And if you have a password you should hash it
-    const hashedPassword = hash(password)
-
-    // And finally, you can find, or create, the user
-    const user = findOrCreateUser(username, hashedPassword)
-
-    // And return the user as the Authenticator expects it
-    return user
-  }),
-  "user-pass"
+const gitHubStrategy = new GitHubStrategy(
+  {
+    clientID: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
+    callbackURL: 'http://localhost:3000/auth/github/callback'
+  },
+  async ({ accessToken, extraParams, profile }) => {
+    // Get the user data from your DB or API using the tokens and profile
+    // return User.findOrCreate({ email: profile.emails[0].value });
+    console.log({ profile })
+    return { profile, accessToken, extraParams }
+  }
 )
 
-// todo: hash or rely on redis encryption?
-function hash (password: FormDataEntryValue | null) {
-  // throw new Error("Function not implemented.");
-  return password
-}
-function findOrCreateUser (username: any, hashedPassword: FormDataEntryValue | null) {
-  // throw new Error("Function not implemented.");
-  return 'phau'
-}
+// export const authenticator = new Authenticator(storage)
+export const auth = new Authenticator<{
+  profile: GitHubProfile
+  accessToken: string
+  extraParams: GitHubExtraParams
+}>(storage)
+
+auth.use(gitHubStrategy)

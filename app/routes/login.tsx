@@ -1,6 +1,6 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
-import { authenticator } from '~/services/auth.server'
+import { auth } from '~/services/auth.server'
 import { getSession } from '~/services/sessions.server'
 
 interface LoaderData {
@@ -8,7 +8,7 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await authenticator.isAuthenticated(request, {
+  await auth.isAuthenticated(request, {
     successRedirect: '/private'
   })
 
@@ -16,12 +16,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     request.headers.get('Cookie')
   )
 
-  const error = session.get(authenticator.sessionErrorKey) as LoaderData['error']
+  const error = session.get(auth.sessionErrorKey) as LoaderData['error']
   return json<LoaderData>({ error })
 }
 
 export const action: ActionFunction = async ({ request, context }) => {
-  const resp = await authenticator.authenticate('user-pass', request, {
+  const resp = await auth.authenticate('github', request, {
     successRedirect: '/private',
     failureRedirect: '/login',
     throwOnError: true,
@@ -36,23 +36,9 @@ export default function Login () {
   const { error } = useLoaderData<LoaderData>()
 
   return (
-    <Form method='post'>
+    <Form method='post' className='grid place-items-center'>
       {(error != null) && <div>{error.message}</div>}
-
-      <input
-        type='text'
-        name='username'
-        placeholder='username'
-        required
-      />
-
-      <input
-        type='password'
-        name='password'
-        placeholder='password'
-        autoComplete='current-password'
-      />
-      <button>Sign In</button>
+      <button>Login with GitHub</button>
     </Form>
   )
 }

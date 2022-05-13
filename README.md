@@ -4,6 +4,8 @@
 [] add github login
 [] refactorings
 [] windiCSS config with daisyUI
+- e2e tests
+    - [] github auth flow 
 
 ## Testing
 
