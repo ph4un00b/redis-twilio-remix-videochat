@@ -1,13 +1,15 @@
 ## Todo
 
-[ ] actions/loaders unit tests
+[] actions/loaders unit tests
+[] add github login
+[] refactorings
+[] windiCSS config with daisyUI
 
 ## Testing
 
 ```sh
 npm run e2e
 ```
-
 
 - [Remix Docs](https://remix.run/docs)
 

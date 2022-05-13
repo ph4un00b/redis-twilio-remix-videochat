@@ -1,4 +1,4 @@
-import { createCookie, createFileSessionStorage } from '@remix-run/node'
+import { createCookie, createCookieSessionStorage, createFileSessionStorage } from '@remix-run/node'
 import { createRedisStorage, EXPIRATION_IN_SECONDS } from 'sessions/redis.server'
 import * as yup from 'yup'
 
@@ -27,11 +27,13 @@ const cookie = createCookie('__HOLA__', {
   secure: process.env.NODE_ENV === 'production'
 })
 
-export const storage = (process.env.NODE_ENV === 'development')
-  ? createFileSessionStorage({
-    cookie,
-    dir: './sessions/store'
-  })
-  : createRedisStorage({ cookie })
+// export const storage = (process.env.NODE_ENV === 'development')
+//   ? createFileSessionStorage({
+//     cookie,
+//     dir: './sessions/store'
+//   })
+//   : createRedisStorage({ cookie })
+
+export const storage = createCookieSessionStorage({ cookie })
 
 export const { getSession, commitSession, destroySession } = storage
