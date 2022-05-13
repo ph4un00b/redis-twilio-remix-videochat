@@ -1,5 +1,18 @@
 import { createCookie, createFileSessionStorage } from '@remix-run/node'
-import { createRedisSession, EXPIRATION_IN_SECONDS } from 'sessions/redis.server'
+import { createRedisStorage, EXPIRATION_IN_SECONDS } from 'sessions/redis.server'
+import * as yup from 'yup'
+
+const schema = yup.object().shape({
+  COOKIE_SECRET: yup
+    .string()
+    .min(32)
+    .required()
+})
+
+const env = schema.validateSync({
+  COOKIE_SECRET: process
+    .env.COOKIE_SECRET
+})
 
 const expires = new Date()
 const seconds =
@@ -7,9 +20,11 @@ const seconds =
 expires.setSeconds(seconds)
 
 const cookie = createCookie('__HOLA__', {
-  secrets: ['tumamac1tab1enbon1ta'],
-  sameSite: true,
-  expires
+  secrets: [env.COOKIE_SECRET],
+  sameSite: 'lax',
+  expires,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production'
 })
 
 const { getSession, commitSession, destroySession } =
@@ -18,6 +33,6 @@ const { getSession, commitSession, destroySession } =
     cookie,
     dir: './sessions/store'
   })
-  : createRedisSession({ cookie })
+  : createRedisStorage({ cookie })
 
 export { getSession, commitSession, destroySession }
