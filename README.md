@@ -1,11 +1,11 @@
 ## Todo
 
-[] fix e2e tests due to auth system
-[] actions/loaders unit tests
-[] add github login
-[] refactorings
-[] windiCSS config with daisyUI
-[] non-js path
+- [] fix e2e tests due to auth system
+- [] actions/loaders unit tests
+- [] add github login
+- [] refactorings
+- [] windiCSS config with daisyUI
+- [] non-js path
 - e2e tests
     - [] github auth flow 
 
