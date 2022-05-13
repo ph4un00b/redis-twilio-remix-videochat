@@ -1,5 +1,5 @@
 ## Todo
-
+- pal hackathon del midurey https://www.twitch.tv/midudev
 - [] fix e2e tests due to auth system
 - [] actions/loaders unit tests
 - [] add github login
