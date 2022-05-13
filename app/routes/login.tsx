@@ -9,7 +9,7 @@ interface LoaderData {
 
 export const loader: LoaderFunction = async ({ request }) => {
   await auth.isAuthenticated(request, {
-    successRedirect: '/private'
+    successRedirect: '/video'
   })
 
   const session = await getSession(
@@ -22,7 +22,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request, context }) => {
   const resp = await auth.authenticate('github', request, {
-    successRedirect: '/private',
+    successRedirect: '/video',
     failureRedirect: '/login',
     throwOnError: true,
     context

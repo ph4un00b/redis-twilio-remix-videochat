@@ -5,7 +5,7 @@ export const loader: LoaderFunction = () => redirect('/login')
 
 export const action: ActionFunction = async ({ request }) => {
   return await auth.authenticate('github', request, {
-    successRedirect: '/private',
+    successRedirect: '/video',
     failureRedirect: '/login'
   })
 }
