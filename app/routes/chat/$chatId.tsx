@@ -1,7 +1,7 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { Redis } from '@upstash/redis'
-import { commitSession, getSession } from 'utils/sessions.server'
+import { commitSession, getSession } from 'services/sessions.server'
 import * as yup from 'yup'
 
 export const loader: LoaderFunction = async ({

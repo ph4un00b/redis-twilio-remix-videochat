@@ -27,12 +27,11 @@ const cookie = createCookie('__HOLA__', {
   secure: process.env.NODE_ENV === 'production'
 })
 
-const { getSession, commitSession, destroySession } =
-(process.env.NODE_ENV === 'development')
+export const storage = (process.env.NODE_ENV === 'development')
   ? createFileSessionStorage({
     cookie,
     dir: './sessions/store'
   })
   : createRedisStorage({ cookie })
 
-export { getSession, commitSession, destroySession }
+export const { getSession, commitSession, destroySession } = storage
