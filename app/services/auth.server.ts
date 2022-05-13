@@ -1,19 +1,25 @@
+// app/services/auth.server.ts
+import { Authenticator } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
-import { auth } from './auth.server'
+import { GitHubExtraParams, GitHubProfile } from 'remix-auth-github'
+import { storage } from './sessions.server'
 
-auth.use(
+// Create an instance of the authenticator, pass a generic with what
+// strategies will return and will store in the session
+export const authenticator = new Authenticator(storage)
+
+// export const auth = new Authenticator<{
+//   profile: GitHubProfile
+//   accessToken: string
+//   extraParams: GitHubExtraParams
+// }>(storage)
+
+authenticator.use(
   new FormStrategy(async ({ form }) => {
     // Here you can use `form` to access and input values from the form.
     // and also use `context` to access more things from the server
     const username = form.get('username') // or email... etc
     const password = form.get('password')
-
-    // You can validate the inputs however you want
-    //   invariant(typeof username === "string", "username must be a string");
-    //   invariant(username.length > 0, "username must not be empty");
-
-    //   invariant(typeof password === "string", "password must be a string");
-    //   invariant(password.length > 0, "password must not be empty");
 
     // And if you have a password you should hash it
     const hashedPassword = hash(password)

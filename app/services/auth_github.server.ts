@@ -1,6 +1,6 @@
-import { auth } from './auth.server'
 import * as yup from 'yup'
 import { GitHubStrategy } from 'remix-auth-github'
+import { authenticator } from './auth.server'
 
 const schema = yup.object().shape({
   GITHUB_CLIENT_ID: yup.string().required(),
@@ -28,4 +28,4 @@ const gitHubStrategy = new GitHubStrategy(
   }
 )
 
-auth.use(gitHubStrategy)
+authenticator.use(gitHubStrategy)

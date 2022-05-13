@@ -1,5 +1,5 @@
 import { ActionFunction } from '@remix-run/server-runtime'
-import makeToken from 'services/access_token.server'
+import makeToken from '~/services/access_token.server'
 
 // export async function loader() {
 //   return new Response(JSON.stringify(jwt), {

@@ -1,12 +1,12 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
 import { GitHubProfile } from 'remix-auth-github'
-import { auth } from 'services/auth.server'
+import { authenticator } from '~/services/auth.server'
 
 // interface LoaderData { profile: GitHubProfile }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return await auth.isAuthenticated(request, {
+  return await authenticator.isAuthenticated(request, {
     failureRedirect: '/login'
   })
 
@@ -14,7 +14,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  await auth.logout(request, { redirectTo: '/login' })
+  await authenticator.logout(request, { redirectTo: '/login' })
 }
 
 export default function Screen () {
