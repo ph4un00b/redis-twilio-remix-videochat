@@ -1,5 +1,5 @@
 import { createCookie, createFileSessionStorage } from '@remix-run/node'
-import { createRedisStorage, EXPIRATION_IN_SECONDS } from 'sessions/redis.server'
+import { createRedisStorage, LAST_ONE_DAY } from 'sessions/redis.server'
 import * as yup from 'yup'
 
 const schema = yup.object().shape({
@@ -16,7 +16,7 @@ const env = schema.validateSync({
 
 const expires = new Date()
 const seconds =
-  expires.getSeconds() + EXPIRATION_IN_SECONDS
+  expires.getSeconds() + LAST_ONE_DAY
 expires.setSeconds(seconds)
 
 const cookie = createCookie('__HOLA__', {

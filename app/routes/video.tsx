@@ -13,7 +13,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     failureRedirect: '/login'
   })
 
-  return json<LoaderData>({user: github.profile.displayName, room: 'midurey'})
+  return json<LoaderData>({ user: github.profile.displayName, room: 'midurey' })
 }
 
 export async function action ({ request }: { request: Request }) {

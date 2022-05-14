@@ -5,7 +5,7 @@ import { Redis } from '@upstash/redis'
 import * as crypto from 'crypto'
 import * as yup from 'yup'
 
-export const EXPIRATION_IN_SECONDS = 60
+export const LAST_ONE_DAY = 60 /* seconds */ * 60 /* minutes */ * 24 /* hours */
 
 const schema = yup.object().shape({
   UPSTASH_REDIS_REST_URL: yup
@@ -38,7 +38,7 @@ export function createRedisStorage ({ cookie }: { cookie: Cookie}) {
       const randomBytes = crypto.randomBytes(8)
       const id = Buffer.from(randomBytes).toString('hex')
       // Call Upstash Redis HTTP API. Set expiration according to the cookie `expired property.
-      await redis.setex(id, EXPIRATION_IN_SECONDS, JSON.stringify(data))
+      await redis.setex(id, LAST_ONE_DAY, JSON.stringify(data))
 
       console.log('session#create')
       return id
@@ -48,7 +48,7 @@ export function createRedisStorage ({ cookie }: { cookie: Cookie}) {
       return await redis.get(id)
     },
     async updateData (id, data, expires) {
-      await redis.setex(id, EXPIRATION_IN_SECONDS, JSON.stringify(data))
+      await redis.setex(id, LAST_ONE_DAY, JSON.stringify(data))
       console.log('session#update')
     },
     async deleteData (id) {

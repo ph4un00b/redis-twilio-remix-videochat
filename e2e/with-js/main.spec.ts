@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { click, expectInputValue, expectVisible, goto } from '../utils'
+import { click, expectCookie, expectInputValue, expectVisible, goto } from '../utils'
 
 const { describe, beforeEach } = test
 
 describe('Index page', function () {
-  // beforeEach(async function ({ page }) { })
+  beforeEach(async function ({ page }) {
+    expectCookie(page)
+  })
 
   test('Usuario puede entrar a un cuarto y ver su camara.', async function ({ page }) {
     const find = page.locator.bind(page)

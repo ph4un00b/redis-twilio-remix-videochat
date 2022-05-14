@@ -11,7 +11,7 @@ export function Header ({ errors }: {errors: any}) {
 }
 
 type ChangeOpts = ChangeEvent<HTMLInputElement>
-  
+
 export function RoomLogin ({ defaults }: {defaults: any}) {
   const [username, setUsername] = useState(defaults?.user)
   const [roomname, setRoomname] = useState(defaults?.room)

@@ -65,11 +65,10 @@ export async function expectInputValue (find: any, opts: {name: string, value: s
 export async function expectCookie (page: Page) {
   // if you got a new session token
   // you should change the 'cookies.json' too
-  // or you might get an error message like:
-  // ApolloError: Foreign key violation. insert or update on table...
+  // or you might get an error message
   const cookies = fs.readFileSync('./e2e/cookies.json', 'utf8')
   const deserializedCookies = JSON.parse(cookies)
   await page.context().addCookies(deserializedCookies)
 
-  await expect(deserializedCookies[0].url).toEqual('http://localhost:8082')
+  await expect(deserializedCookies[0].name).toEqual('__HOLA__')
 }

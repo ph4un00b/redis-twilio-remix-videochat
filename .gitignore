@@ -14,3 +14,5 @@ node_modules
 /playwright-report/
 /dist-pw/
 /sessions/store/
+
+e2e/cookies.json
