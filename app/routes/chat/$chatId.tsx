@@ -4,31 +4,12 @@ import { Redis } from '@upstash/redis'
 import { commitSession, getSession } from '~/services/sessions.server'
 import * as yup from 'yup'
 import { Key } from 'react'
+import { database } from '~/services/db.server'
 
 export const loader: LoaderFunction = async ({
   params, request
 }) => {
-  const schema = yup.object().shape({
-    UPSTASH_REDIS_REST_URL: yup
-      .string()
-      .url()
-      .required(),
-    UPSTASH_REDIS_REST_TOKEN: yup
-      .string()
-      .required()
-  })
-
-  const env = schema.validateSync({
-    UPSTASH_REDIS_REST_URL: process
-      .env.UPSTASH_REDIS_REST_URL,
-    UPSTASH_REDIS_REST_TOKEN: process
-      .env.UPSTASH_REDIS_REST_TOKEN
-  })
-
-  const redis = new Redis({
-    url: env.UPSTASH_REDIS_REST_URL,
-    token: env.UPSTASH_REDIS_REST_TOKEN
-  })
+  const db = database()
 
   const session = await getSession(request.headers.get('Cookie'))
   const myStoredData = session.get('myStoredData')
@@ -49,7 +30,7 @@ export const loader: LoaderFunction = async ({
 
   console.log(params.chatId)
   let chatUsers: string[] | null =
-    await redis.get('room:midu:users')
+    await db.get('room:midu:users')
 
   // init chat
   if (chatUsers === null) {
@@ -60,7 +41,7 @@ export const loader: LoaderFunction = async ({
   if (chatUsers.findIndex((v) => v === 'phau') < 0) {
     chatUsers.push('phau')
 
-    const resp = await redis.set('room:midu:users', JSON.stringify(chatUsers))
+    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
     const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
 
     if (resp === 'OK') return { people }
@@ -74,27 +55,7 @@ export const loader: LoaderFunction = async ({
 export const action: ActionFunction = async ({
   params, request
 }) => {
-  const schema = yup.object().shape({
-    UPSTASH_REDIS_REST_URL: yup
-      .string()
-      .url()
-      .required(),
-    UPSTASH_REDIS_REST_TOKEN: yup
-      .string()
-      .required()
-  })
-
-  const env = schema.validateSync({
-    UPSTASH_REDIS_REST_URL: process
-      .env.UPSTASH_REDIS_REST_URL,
-    UPSTASH_REDIS_REST_TOKEN: process
-      .env.UPSTASH_REDIS_REST_TOKEN
-  })
-
-  const redis = new Redis({
-    url: env.UPSTASH_REDIS_REST_URL,
-    token: env.UPSTASH_REDIS_REST_TOKEN
-  })
+  const db = database()
 
   console.log(params.chatId)
   const formData = await request.formData()
@@ -105,7 +66,7 @@ export const action: ActionFunction = async ({
   if (trigger === 'join' && !values.username) return { join_error: true }
   if (trigger === 'join') {
     let chatUsers: string[] | null =
-      await redis.get('room:midu:users')
+      await db.get('room:midu:users')
 
     // init chat
     if (chatUsers === null) {
@@ -117,7 +78,7 @@ export const action: ActionFunction = async ({
       chatUsers.push(values.username as string)
     }
 
-    const resp = await redis.set('room:midu:users', JSON.stringify(chatUsers))
+    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
     const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
 
     if (resp === 'OK') return { people }
@@ -127,10 +88,10 @@ export const action: ActionFunction = async ({
   if (trigger === 'kick' && !values.peep) return { kick_error: true }
   if (trigger === 'kick') {
     let chatUsers: string[] | null =
-      await redis.get('room:midu:users')
+      await db.get('room:midu:users')
 
     chatUsers = chatUsers?.filter(p => p !== values.peep) ?? []
-    const resp = await redis.set('room:midu:users', JSON.stringify(chatUsers))
+    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
     const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
 
     if (resp === 'OK') return { people }
