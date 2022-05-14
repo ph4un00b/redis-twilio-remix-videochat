@@ -2,7 +2,6 @@ import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
 import { commitSession, getSession } from '~/services/sessions.server'
 import { Key } from 'react'
-import { database } from '~/services/db.server'
 import * as Chat from '~/modules/chat/models/members.server'
 
 export const loader: LoaderFunction = async ({
@@ -26,8 +25,7 @@ export const loader: LoaderFunction = async ({
   // }
 
   const chatUsers = await Chat.readMembers()
-  const user = 'phau'
-  const people = await Chat.createMembers(user, chatUsers)
+  const people = chatUsers?.map((peep, i) => ({ name: peep, id: i })) ?? []
   return { people }
 }
 
@@ -42,7 +40,8 @@ export const action: ActionFunction = async ({
   if (trigger === 'join' && !values.username) return { join_error: true }
   if (trigger === 'join') {
     const chatUsers = await Chat.readMembers()
-    const people = await Chat.createMembers(values.username as string, chatUsers)
+    const people =
+     await Chat.createMembers(values.username as string, chatUsers)
     return { people }
   }
 
@@ -50,6 +49,14 @@ export const action: ActionFunction = async ({
   if (trigger === 'kick') {
     let chatUsers = await Chat.readMembers()
     chatUsers = chatUsers?.filter(p => p !== values.peep) ?? []
+    const people = await Chat.updateMembers(chatUsers)
+    return { people }
+  }
+
+  // todo: leaving room logic with session
+  if (trigger === 'leave') {
+    let chatUsers = await Chat.readMembers()
+    chatUsers = chatUsers?.filter(p => p !== 'phau') ?? []
     const people = await Chat.updateMembers(chatUsers)
     return { people }
   }
@@ -117,10 +124,31 @@ export default function PostRoute () {
 
       <div className='chat-info' /><br />
       <div className='chat'>
-        <div className='messages' />
-        <textarea name='message' id='message' cols={90} rows={5} placeholder='Enter your message...' defaultValue='' /><br /><br />
-        <input type='button' className='btn btn-accent' id='send-message' data-username defaultValue='Send Message' />
-        <input type='button' className='btn btn-primary' id='leave-chat' data-username defaultValue='Leave Chat' />
+        <textarea
+          name='message'
+          id='message'
+          cols={90}
+          rows={5}
+          placeholder='Enter your message...'
+          defaultValue=''
+        /><br /><br />
+
+        <input
+          type='button'
+          className='btn btn-accent'
+          id='send-message'
+          data-username
+          defaultValue='Send Message'
+        />
+        <Form method='post'>
+          <input
+            type='submit'
+            className='btn btn-primary'
+            aria-label='leave'
+            name='trigger'
+            value='leave'
+          />
+        </Form>
       </div>
     </div>
   )

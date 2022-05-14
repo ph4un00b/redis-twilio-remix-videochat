@@ -21,6 +21,7 @@ describe('No js', function () {
     const find = page.locator.bind(page)
 
     await goto(page, '/video')
+    await expectPath(page, 'video')
 
     await find('input[name="user"]').fill('john')
     await find('input[name="user"]').press('Tab')
@@ -37,6 +38,7 @@ describe('No js', function () {
     const find = page.locator.bind(page)
 
     await goto(page, '/video')
+    await expectPath(page, 'video')
 
     await find('input[name="user"]').fill('john')
     await find('input[name="user"]').press('Tab')
