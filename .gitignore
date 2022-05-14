@@ -16,3 +16,4 @@ node_modules
 /sessions/store/
 
 e2e/cookies.json
+/api/index.js.map
