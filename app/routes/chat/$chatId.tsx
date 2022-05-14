@@ -1,16 +1,13 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
-import { Redis } from '@upstash/redis'
 import { commitSession, getSession } from '~/services/sessions.server'
-import * as yup from 'yup'
 import { Key } from 'react'
 import { database } from '~/services/db.server'
+import * as Chat from '~/modules/chat/models/members.server'
 
 export const loader: LoaderFunction = async ({
   params, request
 }) => {
-  const db = database()
-
   const session = await getSession(request.headers.get('Cookie'))
   const myStoredData = session.get('myStoredData')
   console.log('my', myStoredData)
@@ -28,36 +25,15 @@ export const loader: LoaderFunction = async ({
   //   )
   // }
 
-  console.log(params.chatId)
-  let chatUsers: string[] | null =
-    await db.get('room:midu:users')
-
-  // init chat
-  if (chatUsers === null) {
-    chatUsers = []
-  }
-
-  // add user once
-  if (chatUsers.findIndex((v) => v === 'phau') < 0) {
-    chatUsers.push('phau')
-
-    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
-    const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
-
-    if (resp === 'OK') return { people }
-    return { error: true } // todo: handle REDIS ERR
-  }
-
-  const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
+  const chatUsers = await Chat.readMembers()
+  const user = 'phau'
+  const people = await Chat.createMembers(user, chatUsers)
   return { people }
 }
 
 export const action: ActionFunction = async ({
   params, request
 }) => {
-  const db = database()
-
-  console.log(params.chatId)
   const formData = await request.formData()
   const { trigger, ...values } = Object.fromEntries(formData)
 
@@ -65,37 +41,17 @@ export const action: ActionFunction = async ({
 
   if (trigger === 'join' && !values.username) return { join_error: true }
   if (trigger === 'join') {
-    let chatUsers: string[] | null =
-      await db.get('room:midu:users')
-
-    // init chat
-    if (chatUsers === null) {
-      chatUsers = []
-    }
-
-    // add user once
-    if (chatUsers.findIndex((v) => v === values.username) < 0) {
-      chatUsers.push(values.username as string)
-    }
-
-    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
-    const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
-
-    if (resp === 'OK') return { people }
-    return { redis_error: true } // todo: handle REDIS ERR
+    const chatUsers = await Chat.readMembers()
+    const people = await Chat.createMembers(values.username as string, chatUsers)
+    return { people }
   }
 
   if (trigger === 'kick' && !values.peep) return { kick_error: true }
   if (trigger === 'kick') {
-    let chatUsers: string[] | null =
-      await db.get('room:midu:users')
-
+    let chatUsers = await Chat.readMembers()
     chatUsers = chatUsers?.filter(p => p !== values.peep) ?? []
-    const resp = await db.set('room:midu:users', JSON.stringify(chatUsers))
-    const people = chatUsers.map((peep, i) => ({ name: peep, id: i }))
-
-    if (resp === 'OK') return { people }
-    return { redis_error: true } // todo: handle REDIS ERR
+    const people = await Chat.updateMembers(chatUsers)
+    return { people }
   }
 }
 
