@@ -2,14 +2,16 @@ import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
 import { commitSession, getSession } from '~/services/sessions.server'
 import { Key } from 'react'
-import * as Chat from '~/modules/chat/models/members.server'
+import * as Members from '~/modules/chat/models/members.server'
+import * as Messages from '~/modules/chat/models/messages.server'
+import { Message } from '~/modules/chat/models/messages.server'
 
 export const loader: LoaderFunction = async ({
   params, request
 }) => {
-  const session = await getSession(request.headers.get('Cookie'))
-  const myStoredData = session.get('myStoredData')
-  console.log('my', myStoredData)
+  // const session = await getSession(request.headers.get('Cookie'))
+  // const myStoredData = session.get('myStoredData')
+  // console.log('my', myStoredData)
   // If no session found (was never created or was expired) create a new session.
   // if (!myStoredData) {
   //   session.set('myStoredData', 'Some data jamon!')
@@ -24,9 +26,11 @@ export const loader: LoaderFunction = async ({
   //   )
   // }
 
-  const chatUsers = await Chat.readMembers()
+  const chatUsers = await Members.read()
   const people = chatUsers?.map((peep, i) => ({ name: peep, id: i })) ?? []
-  return { people }
+  const messages = await Messages.read() ?? []
+
+  return { people, messages }
 }
 
 export const action: ActionFunction = async ({
@@ -39,40 +43,58 @@ export const action: ActionFunction = async ({
 
   if (trigger === 'join' && !values.username) return { join_error: true }
   if (trigger === 'join') {
-    const chatUsers = await Chat.readMembers()
+    const chatUsers = await Members.read()
     const people =
-     await Chat.createMembers(values.username as string, chatUsers)
+     await Members.create(values.username as string, chatUsers)
     return { people }
   }
 
   if (trigger === 'kick' && !values.peep) return { kick_error: true }
   if (trigger === 'kick') {
-    let chatUsers = await Chat.readMembers()
+    let chatUsers = await Members.read()
     chatUsers = chatUsers?.filter(p => p !== values.peep) ?? []
-    const people = await Chat.updateMembers(chatUsers)
+    const people = await Members.update(chatUsers)
     return { people }
   }
 
   // todo: leaving room logic with session
   if (trigger === 'leave') {
-    let chatUsers = await Chat.readMembers()
+    let chatUsers = await Members.read()
     chatUsers = chatUsers?.filter(p => p !== 'phau') ?? []
-    const people = await Chat.updateMembers(chatUsers)
+    const people = await Members.update(chatUsers)
     return { people }
+  }
+
+  if (trigger === 'send') {
+    const msg = {
+      username: 'phau',
+      message: values.message as string,
+      created_at: Date.now()
+    }
+
+    const messages =
+      await Messages.create(msg, await Messages.read())
+
+    return { messages }
   }
 }
 
 export default function PostRoute () {
   const params = useParams()
-  console.log(params.chatId)
-
   const server = useLoaderData()
-  console.log('action', useActionData())
-  // const action = useActionData()
 
+  const serverPeople =
+   JSON.stringify(server.people.map((p: { name: string }) => p.name), undefined, 2)
+
+  const serverMessages =
+    JSON.stringify(server.messages.map((p: Message) => p), undefined, 2)
   return (
     <div className='container'>
-      <div>chat members: <br />{JSON.stringify(server.people.map((p: { name: string }) => p.name), undefined, 2)}</div>
+      <div>chat members: <br />
+
+        {serverPeople}
+      </div>
+
       <ul>
         {server?.people?.length > 0 && server.people.map((peep: { id: Key, name: string }) => (
           <li key={peep.id}>
@@ -124,22 +146,30 @@ export default function PostRoute () {
 
       <div className='chat-info' /><br />
       <div className='chat'>
-        <textarea
-          name='message'
-          id='message'
-          cols={90}
-          rows={5}
-          placeholder='Enter your message...'
-          defaultValue=''
-        /><br /><br />
 
-        <input
-          type='button'
-          className='btn btn-accent'
-          id='send-message'
-          data-username
-          defaultValue='Send Message'
-        />
+        <div>messages: <br />
+
+          {serverMessages}
+        </div>
+
+        <Form method='post'>
+          <textarea
+            name='message'
+            id='message'
+            cols={90}
+            rows={5}
+            placeholder='Enter your message...'
+          /><br /><br />
+
+          <input
+            type='submit'
+            className='btn btn-accent'
+            name='trigger'
+            value='send'
+          />
+
+        </Form>
+
         <Form method='post'>
           <input
             type='submit'

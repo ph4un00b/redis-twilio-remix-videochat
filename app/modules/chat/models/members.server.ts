@@ -1,5 +1,7 @@
 import { database } from '~/services/db.server'
 
+const MIDU_ROOM = 'room:midu:users'
+
 const db = database()
 
 export interface Members {
@@ -7,16 +9,16 @@ export interface Members {
   id: number
 }
 
-export async function readMembers () {
+export async function read () {
   const members: string[] | null =
-    await db.get('room:midu:users')
+    await db.get(MIDU_ROOM)
 
   return members
 }
 
-export async function updateMembers (newMembers: string[]) {
+export async function update (newMembers: string[]) {
   const resp =
-    await db.set('room:midu:users', JSON.stringify(newMembers))
+    await db.set(MIDU_ROOM, JSON.stringify(newMembers))
 
   if (resp === 'OK') {
     const p = newMembers.map((peep, i) => ({ name: peep, id: i }))
@@ -27,7 +29,7 @@ export async function updateMembers (newMembers: string[]) {
   return { update_error: true } // todo: handle REDIS ERR
 }
 
-export async function createMembers (newUser: string, members: string[] | null) {
+export async function create (newUser: string, members: string[] | null) {
   console.log('new', newUser)
   //  should run  olny the first time
   if (members === null) {
@@ -43,7 +45,7 @@ export async function createMembers (newUser: string, members: string[] | null) 
   members.push(newUser)
 
   const resp = await db
-    .set('room:midu:users', JSON.stringify(members))
+    .set(MIDU_ROOM, JSON.stringify(members))
 
   if (resp === 'OK') {
     return members.map((peep, i) => ({ name: peep, id: i }))
