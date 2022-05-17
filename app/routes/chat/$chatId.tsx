@@ -5,10 +5,14 @@ import { Key } from 'react'
 import * as Members from '~/modules/chat/models/members.server'
 import * as Messages from '~/modules/chat/models/messages.server'
 import { Message } from '~/modules/chat/models/messages.server'
+import { auth } from '~/services/auth.server'
 
 export const loader: LoaderFunction = async ({
   params, request
 }) => {
+  const github = await auth.isAuthenticated(request, {
+    failureRedirect: '/login'
+  })
   // const session = await getSession(request.headers.get('Cookie'))
   // const myStoredData = session.get('myStoredData')
   // console.log('my', myStoredData)
@@ -30,12 +34,16 @@ export const loader: LoaderFunction = async ({
   const people = chatUsers?.map((peep, i) => ({ name: peep, id: i })) ?? []
   const messages = await Messages.read() ?? []
 
-  return { people, messages }
+  return { people, messages, username: github.profile.displayName }
 }
 
 export const action: ActionFunction = async ({
   params, request
 }) => {
+  const github = await auth.isAuthenticated(request, {
+    failureRedirect: '/login'
+  })
+
   const formData = await request.formData()
   const { trigger, ...values } = Object.fromEntries(formData)
 
@@ -67,7 +75,7 @@ export const action: ActionFunction = async ({
 
   if (trigger === 'send') {
     const msg = {
-      username: 'phau',
+      username: github.profile.displayName,
       message: values.message as string,
       created_at: Date.now()
     }
@@ -86,10 +94,14 @@ export default function PostRoute () {
   const serverPeople =
    JSON.stringify(server.people.map((p: { name: string }) => p.name), undefined, 2)
 
-  const serverMessages =
-    JSON.stringify(server.messages.map((p: Message) => p), undefined, 2)
+  const serverMessages = server.messages.map((p: Message) => (
+    <pre key={p.created_at}>{JSON.stringify(p, undefined)}</pre>
+  ))
+
   return (
     <div className='container'>
+      <h2>username: {server.username}</h2>
+      <hr />
       <div>chat members: <br />
 
         {serverPeople}
@@ -130,7 +142,8 @@ export default function PostRoute () {
           </li>
         ))}
       </ul>
-      <div className='join-chat'>
+
+      {/* <div className='join-chat'>
         <Form method='post' replace>
           <label htmlFor='username'>Username:</label>
           <input type='text' id='username' name='username' />
@@ -142,7 +155,7 @@ export default function PostRoute () {
             value='join'
           />
         </Form>
-      </div><br />
+      </div><br /> */}
 
       <div className='chat-info' /><br />
       <div className='chat'>
