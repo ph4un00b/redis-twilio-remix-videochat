@@ -7,7 +7,7 @@ const schema = yup.object().shape({
   GITHUB_CLIENT_ID: yup.string().required(),
   GITHUB_CLIENT_SECRET: yup.string().required(),
   // BASE_URL: yup.string().url().required()
-  BASE_URL: yup.string().required()
+  BASE_URL: yup.string()  .required()
 })
 
 const env = schema.validateSync({

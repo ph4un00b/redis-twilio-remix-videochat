@@ -1,0 +1,14 @@
+POST http://localhost:3000/access/token 
+Content-Type: application/json
+
+{
+"identity": "me", "room": "test"
+}
+
+###
+POST http://localhost:3000/access/chat_token 
+Content-Type: application/json
+
+{
+"identity": "me", "room": "test"
+}
